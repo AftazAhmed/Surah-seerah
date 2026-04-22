@@ -84,27 +84,15 @@ transition:0.2s;
 transform:scale(1.05);
 }
 
-/* 🔥 DIFFERENT COLORS */
-.btn-surah{
-background:#e74c3c;
-}
-.btn-surah:hover{
-background:#c0392b;
-}
+/* COLORS */
+.btn-surah{background:#e74c3c;}
+.btn-surah:hover{background:#c0392b;}
 
-.btn-seerah{
-background:#145a32;
-}
-.btn-seerah:hover{
-background:#0e3d22;
-}
+.btn-seerah{background:#145a32;}
+.btn-seerah:hover{background:#0e3d22;}
 
-.btn-story{
-background:#1f3a93;
-}
-.btn-story:hover{
-background:#162d6b;
-}
+.btn-story{background:#1f3a93;}
+.btn-story:hover{background:#162d6b;}
 </style>
 
 <script>
@@ -118,77 +106,7 @@ const storyDB = {};
 contentDB["2.5"] = {content:`<h3>Ruku 2.5</h3><p>Content</p>`};
 seerahDB["1"] = {title:"Seerah",content:`<p>Seerah content</p>`};
 storyDB["1"] = {title:"Story",content:`<p>Story content</p>`};
-storyDB["3"] = {
-title:"The Story of Salman al-Farsi (RA)",
-content:`
 
-<p>
-Salman al-Farsi (RA) was a seeker of truth long before he found Islam. Born in Persia, he was raised in a wealthy family devoted to fire worship, yet his heart was never satisfied.
-</p>
-
-<p>
-One day, he passed by a Christian church and was deeply moved by their prayer. He realized that this path was closer to the truth, and despite his father’s opposition, he left everything behind in search of guidance.
-</p>
-
-<p>
-His journey took him across lands, serving different priests. Some were corrupt, but a few were sincere. Each righteous teacher guided him closer to the final truth, telling him about a coming Prophet.
-</p>
-
-<blockquote>
-<b>"A Prophet will emerge in the land of the Arabs... he will accept gifts but not charity."</b>
-</blockquote>
-
-<p>
-Determined, Salman (RA) traveled toward Arabia but was betrayed and sold into slavery. He eventually arrived in Madinah, where he waited patiently for the signs he had been told about.
-</p>
-
-<p>
-When the Prophet Muhammad (PBUH) arrived, Salman (RA) tested him. He offered food as charity — the Prophet did not eat. Then he offered a gift — the Prophet accepted it. Finally, he saw the Seal of Prophethood.
-</p>
-
-<p>
-At that moment, Salman (RA) knew he had found the truth. He embraced Islam and became one of the closest companions of the Prophet (PBUH).
-</p>
-
-<p>
-Later, during the Battle of the Trench, it was Salman (RA) who suggested digging a trench — a strategy from Persia — which saved Madinah from invasion.
-</p>
-
-<p>
-The Prophet (PBUH) honored him with the words:
-</p>
-
-<blockquote>
-<b>"Salman is from us, the People of the Household."</b>
-</blockquote>
-
-<p>
-His story teaches that sincere seekers of truth will always be guided, no matter how long or difficult the journey.
-</p>
-
-`
-};
-  contentDB["4.5"] = {
-content:`
-<h3>Surah Al-Baqarah</h3>
-
-<h4>The Call to Bani Isra'il</h4>
-
-<p>
-This Ruku marks the beginning of a long and detailed address to the Children of Israel (Bani Isra'il).
-</p>
-
-<h4>40. The Covenant of Gratitude</h4>
-
-<blockquote>
-<b>O Children of Israel, remember My favor...</b>
-</blockquote>
-
-<p>
-This verse reminds them of their covenant with Allah.
-</p>
-`
-};
 // ===== TAB =====
 function openTab(tab){
 document.querySelectorAll(".content").forEach(c=>c.classList.remove("show"));
@@ -238,8 +156,12 @@ btn.onclick=()=>openAI(box.innerText);
 box.appendChild(btn);
 }
 
-// ===== BOOKMARK =====
-let bookmarks={surah:null,seerah:null,story:null};
+// ===== BOOKMARK (PERSISTENT) =====
+let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || {
+surah:null,
+seerah:null,
+story:null
+};
 
 function enableBookmark(container,type){
 let el=document.getElementById(container);
@@ -260,6 +182,9 @@ t.id=id;
 t.classList.add("highlight");
 
 bookmarks[type]={id:id,content:el.innerHTML};
+
+// 🔥 SAVE
+localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
 
 alert("Bookmarked");
 },600);
@@ -300,8 +225,22 @@ el.scrollIntoView({behavior:"smooth",block:"center"});
 },300);
 }
 
-// ===== ALL 114 SURAH =====
-const surahNames = ["Al-Fatiha","Al-Baqarah","Aal-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu’minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-Adiyat","Al-Qari'ah","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
+// ===== 114 SURAH =====
+const surahNames = [
+"Al-Fatiha","Al-Baqarah","Aal-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah",
+"Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha",
+"Al-Anbiya","Al-Hajj","Al-Mu’minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut",
+"Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar",
+"Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath",
+"Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid",
+"Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq",
+"At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir",
+"Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar",
+"Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad",
+"Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah",
+"Al-Adiyat","Al-Qari'ah","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un",
+"Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"
+];
 
 // ===== INIT =====
 window.onload=function(){
