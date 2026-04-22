@@ -2,886 +2,412 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- ✅ MOBILE FIX -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Surah & Seerah</title>
+<title>Surah & Seerah Explorer</title>
 
 <style>
-body {
-    font-family:'Segoe UI',sans-serif;
-    margin:0;
-    background:#f1f5f2;
-    overflow-x:hidden; /* ✅ prevents horizontal scroll */
+body{font-family:'Segoe UI';margin:0;background:#f1f5f2;}
+
+header{
+background:#0f3d2e;color:#f5d36c;
+padding:12px;text-align:center;font-weight:bold;
 }
 
-header {
-    background:#0f3d2e;
-    color:#f5d36c;
-    padding:12px;
-    text-align:center;
-    font-weight:bold;
-    font-size:16px;
+.tabs{display:flex;background:#145a42;}
+.tab{flex:1;padding:10px;color:white;text-align:center;cursor:pointer;}
+.active{background:#1abc9c;}
+
+.content{display:none;padding:10px;}
+.show{display:block;}
+
+select{
+width:100%;padding:10px;margin-bottom:10px;border-radius:6px;
 }
 
-.tabs { display:flex;background:#145a42; }
-
-.tab {
-    flex:1;
-    padding:10px;
-    text-align:center;
-    color:white;
-    cursor:pointer;
-    font-size:14px;
+.content-box,.section{
+background:white;padding:12px;border-radius:8px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+position:relative;margin-bottom:10px;
 }
 
-.active { background:#1abc9c; }
-
-.content {
-    display:none;
-    padding:10px;
-}
-.show { display:block; }
-
-select {
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-    border-radius:6px;
-    font-size:14px;
-}
-
-/* ✅ CONTENT BOX FIX */
-.content-box{
-    background:white;
-    padding:12px;
-    border-radius:8px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    position:relative;
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-}
-
-/* SECTION WRAPPER */
-.section{
-    position:relative;
-    background:white;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:12px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* AI BUTTON */
 .ai-btn{
-    width:30px;
-    height:30px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#7c3aed,#2563eb);
-    color:white;
-    border:none;
-    font-size:10px;
-    cursor:pointer;
-    position:absolute;
-    top:6px;
-    right:6px;
+position:absolute;top:6px;right:6px;
+width:30px;height:30px;border-radius:50%;
+background:linear-gradient(135deg,#7c3aed,#2563eb);
+color:white;border:none;font-size:10px;cursor:pointer;
 }
 
-/* ✅ TEXT FIX */
-p, li, blockquote {
-    font-size:14px;
-    line-height:1.5;
-}
-
-/* ✅ BLOCKQUOTE FIX */
 blockquote{
-    overflow-x:auto;
-    word-break:break-word;
+background:#f9f9f9;padding:10px;
+border-left:4px solid #1abc9c;
 }
 
-/* ✅ EXTRA SMALL DEVICES */
-@media(max-width:400px){
-    header{font-size:14px;}
-    .tab{font-size:12px;padding:8px;}
+.highlight{
+background:#fff3a0;
+}
+
+/* BOOKMARK STYLE */
+.bookmark-bar{
+background:#ffffff;
+padding:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.bookmark-label{
+font-size:12px;
+color:#555;
+margin-bottom:6px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
+.bookmark-buttons{
+display:flex;
+justify-content:center;
+gap:8px;
+}
+
+.bookmark-btn{
+padding:6px 12px;
+border-radius:20px;
+border:none;
+font-size:12px;
+cursor:pointer;
+color:white;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+transition:0.2s;
+}
+
+.bookmark-btn:hover{
+transform:scale(1.05);
+}
+
+/* 🔥 DIFFERENT COLORS */
+.btn-surah{
+background:#e74c3c;
+}
+.btn-surah:hover{
+background:#c0392b;
+}
+
+.btn-seerah{
+background:#145a32;
+}
+.btn-seerah:hover{
+background:#0e3d22;
+}
+
+.btn-story{
+background:#1f3a93;
+}
+.btn-story:hover{
+background:#162d6b;
 }
 </style>
 
 <script>
 
+// ===== DATABASE =====
+const contentDB = {};
+const seerahDB = {};
+const storyDB = {};
+
+// SAMPLE
+contentDB["2.5"] = {content:`<h3>Ruku 2.5</h3><p>Content</p>`};
+seerahDB["1"] = {title:"Seerah",content:`<p>Seerah content</p>`};
+storyDB["1"] = {title:"Story",content:`<p>Story content</p>`};
+storyDB["3"] = {
+title:"The Story of Salman al-Farsi (RA)",
+content:`
+
+<p>
+Salman al-Farsi (RA) was a seeker of truth long before he found Islam. Born in Persia, he was raised in a wealthy family devoted to fire worship, yet his heart was never satisfied.
+</p>
+
+<p>
+One day, he passed by a Christian church and was deeply moved by their prayer. He realized that this path was closer to the truth, and despite his father’s opposition, he left everything behind in search of guidance.
+</p>
+
+<p>
+His journey took him across lands, serving different priests. Some were corrupt, but a few were sincere. Each righteous teacher guided him closer to the final truth, telling him about a coming Prophet.
+</p>
+
+<blockquote>
+<b>"A Prophet will emerge in the land of the Arabs... he will accept gifts but not charity."</b>
+</blockquote>
+
+<p>
+Determined, Salman (RA) traveled toward Arabia but was betrayed and sold into slavery. He eventually arrived in Madinah, where he waited patiently for the signs he had been told about.
+</p>
+
+<p>
+When the Prophet Muhammad (PBUH) arrived, Salman (RA) tested him. He offered food as charity — the Prophet did not eat. Then he offered a gift — the Prophet accepted it. Finally, he saw the Seal of Prophethood.
+</p>
+
+<p>
+At that moment, Salman (RA) knew he had found the truth. He embraced Islam and became one of the closest companions of the Prophet (PBUH).
+</p>
+
+<p>
+Later, during the Battle of the Trench, it was Salman (RA) who suggested digging a trench — a strategy from Persia — which saved Madinah from invasion.
+</p>
+
+<p>
+The Prophet (PBUH) honored him with the words:
+</p>
+
+<blockquote>
+<b>"Salman is from us, the People of the Household."</b>
+</blockquote>
+
+<p>
+His story teaches that sincere seekers of truth will always be guided, no matter how long or difficult the journey.
+</p>
+
+`
+};
+  contentDB["4.5"] = {
+content:`
+<h3>Surah Al-Baqarah</h3>
+
+<h4>The Call to Bani Isra'il</h4>
+
+<p>
+This Ruku marks the beginning of a long and detailed address to the Children of Israel (Bani Isra'il).
+</p>
+
+<h4>40. The Covenant of Gratitude</h4>
+
+<blockquote>
+<b>O Children of Israel, remember My favor...</b>
+</blockquote>
+
+<p>
+This verse reminds them of their covenant with Allah.
+</p>
+`
+};
 // ===== TAB =====
 function openTab(tab){
 document.querySelectorAll(".content").forEach(c=>c.classList.remove("show"));
 document.getElementById(tab).classList.add("show");
-
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 event.currentTarget.classList.add("active");
 }
 
-// ===== AI HANDLERS =====
-
-function handleSeerahAI(text){
-let prompt = `${text}
-
-ask me anything related to the above section.`;
-
+// ===== AI =====
+function openAI(text){
+let prompt=text+"\n\nask me anything related to this section.";
 window.open(`https://chat.openai.com/?q=${encodeURIComponent(prompt)}`);
 }
 
-function handleRukuAI(text){
-let prompt = `${text}
-
-
-ask me anything related to this section.`; 
-
-window.open(`https://chat.openai.com/?q=${encodeURIComponent(prompt)}`);
-}
-
-// ===== ADD AI BUTTONS =====
-
-function addSeerahAI(){
-let box = document.querySelector("#seerahContent .content-box");
-if(!box) return;
-
-if(box.querySelector(".ai-btn")) return;
-
-let btn = document.createElement("button");
-btn.className="ai-btn";
-btn.innerText="AI";
-
-btn.onclick = ()=>handleSeerahAI(box.innerText);
-
-box.appendChild(btn);
-}
-
+// ===== AI BUTTONS =====
 function addVerseAI(){
+document.querySelectorAll("#contentArea h3,#contentArea h4").forEach(el=>{
+if(el.parentElement.classList.contains("section")) return;
 
-document.querySelectorAll("#contentArea h3").forEach(el=>{
+let wrap=document.createElement("div");
+wrap.className="section";
 
-    if(el.parentElement.classList.contains("section")) return;
-
-    let wrapper = document.createElement("div");
-    wrapper.className = "section";
-
-    let btn = document.createElement("button");
-    btn.className = "ai-btn";
-    btn.innerText = "AI";
-
-    btn.onclick = function(){
-        handleRukuAI(wrapper.innerText);
-    };
-
-    el.parentNode.insertBefore(wrapper, el);
-    wrapper.appendChild(btn);
-
-    while(el.nextSibling && !["H3","H4"].includes(el.nextSibling.tagName)){
-        wrapper.appendChild(el.nextSibling);
-    }
-
-    wrapper.insertBefore(el, btn.nextSibling);
-});
-
-document.querySelectorAll("#contentArea h4").forEach(el=>{
-
-    if(el.parentElement.classList.contains("section")) return;
-
-    let wrapper = document.createElement("div");
-    wrapper.className = "section";
-
-    let btn = document.createElement("button");
-    btn.className = "ai-btn";
-    btn.innerText = "AI";
-
-    btn.onclick = function(){
-        handleRukuAI(wrapper.innerText);
-    };
-
-    el.parentNode.insertBefore(wrapper, el);
-    wrapper.appendChild(btn);
-
-    while(el.nextSibling && el.nextSibling.tagName !== "H4"){
-        wrapper.appendChild(el.nextSibling);
-    }
-
-    wrapper.insertBefore(el, btn.nextSibling);
-});
-
-}
-
-// ===== STORY AI =====
-function addStoryAI(){
-let box = document.querySelector("#storyContent .content-box");
-if(!box) return;
-
-if(box.querySelector(".ai-btn")) return;
-
-let btn = document.createElement("button");
+let btn=document.createElement("button");
 btn.className="ai-btn";
 btn.innerText="AI";
+btn.onclick=()=>openAI(wrap.innerText);
 
-btn.onclick = ()=>handleSeerahAI(box.innerText);
+el.parentNode.insertBefore(wrap,el);
+wrap.appendChild(btn);
+
+while(el.nextSibling && !["H3","H4"].includes(el.nextSibling.tagName)){
+wrap.appendChild(el.nextSibling);
+}
+wrap.insertBefore(el,btn.nextSibling);
+});
+}
+
+function addBoxAI(container){
+let box=document.querySelector(container+" .content-box");
+if(!box || box.querySelector(".ai-btn")) return;
+
+let btn=document.createElement("button");
+btn.className="ai-btn";
+btn.innerText="AI";
+btn.onclick=()=>openAI(box.innerText);
 
 box.appendChild(btn);
 }
 
-// ===== CONTENT =====
-
-const ruku6 = `
-
-<p>## Surah Al-Baqarah (The Cow)</p>
-<p>### Seerah and Context</p>
-
-<p>**Verse Range: 40–46** | **Ruku: 05**</p>
-
-<p>**The Call to Bani Isra'il**</p>
-
-<p>
-This Ruku marks the beginning of a long and detailed address to the Children of Israel (*Bani Isra'il*). After establishing the origin of humanity through Adam (AS), the Quran now speaks to the people who were the primary custodians of Divine scripture before the arrival of Islam.
-</p>
-
-<p>
-In Madinah, the Jewish tribes were influential, knowledgeable, and respected for their prophetic lineage. This section serves as a formal "Invitation to Truth." It reminds them of the favors Allah bestowed upon their ancestors—saving them from tyranny and giving them the Law—and challenges them to fulfill their ancient covenant by recognizing the Final Prophet ﷺ. It is a call to move past tribal pride and return to the spirit of sincere worship and humility.
-</p>
-
-<p>#### 40. The Covenant of Gratitude</p>
-
-<blockquote>
-**يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَوْفُوا بِعَهْدِي أُوفِ بِعَهْدِكُمْ وَإِيَّايَ فَارْهَبُونِ ﴿٤٠﴾**  
-**"O Children of Israel, remember My favor which I have bestowed upon you and fulfill My covenant [with you] that I will fulfill your covenant [with you], and of Me be afraid."**  
-**ऐ बनी इस्राईल! मेरी उस नेमत को याद करो जो मैंने तुम पर की और मेरे अहद (वादे) को पूरा करो, मैं तुम्हारे अहद को पूरा करूँगा; और सिर्फ मुझी से डरो।**
-</blockquote>
-
-<p>**Literary Explanation**</p>
-
-<p>
-The address begins with **"Ya Bani Isra'il"** (O Children of Jacob), a title that reminds them of their noble roots. Allah asks them to **"Remember"** (*Udhkuru*), because gratitude is the engine of faith. The relationship is described as a two-way covenant: if they stay true to the promise of following the Truth, Allah will fulfill His promise of protection and reward. The verse ends with a command to fear only Allah, stripping away their fear of losing social status or political power by accepting Islam.
-</p>
-
-<p>**Tafsir (based on Ibn Kathir, Noor ul Irfan)**</p>
-
-<p>
- 1. The "Favor" refers to the long history of miracles provided to them, including deliverance from Pharaoh and the sending of countless Prophets. The "Covenant" specifically refers to the promise recorded in the Torah that they would believe in and support the "Unlettered Prophet" (Muhammad ﷺ) when he appeared.
- 2. Fearing Allah alone is the cure for hypocrisy. The Jewish scholars of Madinah feared that if they converted, they would lose the respect they received from their community. Allah reminds them that the only consequence that truly matters is the one determined by the Creator.
-</p>
-
-<p>#### 41–43. Truth and Its Obligations</p>
-
-<blockquote>
-**وَآمِنُوا بِمَا أَنزَلْتُ مُصَدِّقًا لِّمَا مَعَكُمْ وَلَا تَكُونُوا أَوَّلَ كَافِرٍ بِهِ ۖ وَلَا تَشْتَرُوا بِآيَاتِي ثَمَنًا قَلِيلًا وَإِيَّايَ فَاتَّقُونِ ﴿٤١﴾ وَلَا تَلْبِسُوا الْحَقَّ بِالْبَاطِلِ وَتَكْتُمُوا الْحَقَّ وَأَنتُمْ تَعْلَمُونَ ﴿٤٢﴾ وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَارْكَعُوا مَعَ الرَّاكِعِينَ ﴿٤٣﴾**  
-**"And believe in what I have sent down confirming that which is [already] with you, and be not the first to disbelieve in it. And do not exchange My signs for a small price... And do not mix the truth with falsehood or conceal the truth while you know [it]... And establish prayer and give zakah and bow with those who bow."**  
-**और उस (किताब) पर ईमान लाओ जो मैंने उतारी है, जो तुम्हारी किताब की तस्दीक़ (पुष्टि) करती है; और इसके पहले मुनकिर (इनकार करने वाले) न बनो... और हक़ को बातिल के साथ न मिलाओ और न ही हक़ को छुपाओ जबकि तुम जानते हो... और नमाज़ क़ायम करो, ज़कात दो और रुकू करने वालों के साथ रुकू करो।**
-</blockquote>
-
-<p>**Literary Explanation**</p>
-
-<p>
-The Quran identifies itself as **"Musaddiqan"** (A Confirmer). It doesn't come to destroy their history but to complete it. Allah warns them not to be the "first to disbelieve"—since they have the most knowledge, their rejection is more dangerous than that of the ignorant. The warning against "exchanging signs for a small price" refers to trading eternal guidance for worldly leadership. Finally, it forbids the two great crimes of the scholar: **Mixing** (twisting the truth) and **Concealing** (hiding the truth).
-</p>
-
-<p>**Tafsir (based on Ibn Kathir, Noor ul Irfan)**</p>
-
-<p>
- 1. "Mixing truth with falsehood" (*Talbis*) refers to the practice of taking Divine verses and wrapping them in man-made interpretations to suit personal agendas. "Concealing" refers to the specific descriptions of the Prophet ﷺ in the Torah which the rabbis refused to share with the common people.
- 2. The command to "bow with those who bow" is a call to join the Muslim congregation. It signifies that true religion is not a private, intellectual exercise but a communal act of submission.
-</p>
-
-<p>#### 44–46. The Mirror of the Soul</p>
-
-<blockquote>
-**أَتَأْمُرُونَ النَّاسَ بِالْبِرِّ وَتَنسَوْنَ أَنفُسَكُمْ وَأَنتُمْ تَتْلُونَ الْكِتَابَ ۚ أَفَلَا تَعْقِلُونَ ﴿٤٤﴾ وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ وَإِنَّهَا لَكَبِيرَةٌ إِلَّا عَلَى الْخَاشِعِينَ ﴿٤٥﴾ الَّذِينَ يَظُنُّونَ أَنَّهُم مُّلَاقُو رَبِّهِمْ وَأَنَّهُمْ إِلَيْهِ رَاجِعُونَ ﴿٤٦﴾**  
-**"Do you order righteousness of the people and forget yourselves while you recite the Scripture? Then will you not reason? And seek help through patience and prayer, and indeed, it is difficult except for the humbly submissive [to Allah]... Who are certain that they will meet their Lord and that they will return to Him."**  
-**क्या तुम लोगों को तो नेकी का हुक्म देते हो और अपने आप को भूल जाते हो, जबकि तुम किताब पढ़ते हो? तो क्या तुम अक्ल नहीं रखते? और सब्र और नमाज़ के ज़रिए मदद चाहो; और बेशक यह मुश्किल है सिवाय उन लोगों के जिनके दिलों में आज़िज़ी (डर) है... जिन्हें यकीन है कि वे अपने रब से मिलेंगे और वे उसी की तरफ लौटने वाले हैं।**
-</blockquote>
-
-<p>**Literary Explanation**</p>
-
-<p>
-The Quran points out a profound psychological contradiction: scholars who tell others to be good while they themselves remain arrogant. This is described as a failure of **"Aql"** (Reason). To fix this internal gap, Allah offers a practical remedy: **Sabr** (Patience/Self-Control) and **Salah** (Prayer). While prayer is a heavy burden for the ego, it becomes easy for the **"Khashi'in"**—those whose hearts are melted by the certainty that they will eventually meet their Lord.
-</p>
-
-<p>**Tafsir (based on Ibn Kathir, Noor ul Irfan)**</p>
-
-<p>
- 1. This verse warns every religious leader that teaching without practicing is a form of spiritual insanity. Knowledge is a witness either for you or against you.
- 2. Being "certain of meeting their Lord" is the ultimate motivation; when a person is certain of the Return, the difficulties of the world become small, and the effort of worship becomes a source of comfort rather than a chore.
-</p>
-
-`;
-const ruku1 = `
-
-<h2>## Surah Al-Fatiha (The Opening)</h2>
-<h3>### Seerah and Context</h3>
-
-<p>
-**Verse Range: 1–7** | **Ruku: 01**
-</p>
-
-<p>
-**The Essence of the Quran**
-Surah Al-Fatiha is the "Mother of the Book" (*Umm al-Kitab*). Unlike the long, legislative Surahs revealed in Madinah, Al-Fatiha was revealed in Makkah. It serves as the opening chapter of the Quran and the fundamental prayer for every Muslim. It is unique because it is composed entirely as a direct conversation between the servant and the Creator—the first half praises Allah, and the second half presents the servant’s needs. It is the bridge between human limitation and Divine Majesty.
-</p>
-
-<h4>#### 1–2. The Opening and the Praise</h4>
-
-<blockquote>
-**بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴿١﴾ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿٢﴾**  
-**"In the name of Allah, the Entirely Merciful, the Especially Merciful. [All] praise is [due] to Allah, Lord of the worlds."**  
-**अल्लाह के नाम से, जो निहायत मेहरबान, बहुत रहम करने वाला है। सब तारीफें अल्लाह ही के लिए हैं, जो तमाम जहानों का रब है।**
-</blockquote>
-
-<p>
-**Literary Explanation**
-Every great action in Islam begins with the **"Basmala"** (In the name of Allah), acknowledging that we act only by His permission and strength. The word **"Al-Hamd"** is specific; it is not just "thanks" but the recognition of perfection. By calling Him the **"Rabb"** (Lord/Sustainer) of the **"Alamin"** (Worlds/Universes), the verse humbles the human ego, reminding us that we are part of a vast, governed existence, not the center of it.
-</p>
-
-<p>
-**Tafsir (based on Ibn Kathir, Noor ul Irfan)**
- 1. *Ar-Rahman* and *Ar-Rahim* are two forms of mercy. *Rahman* is His general mercy that sustains all life on earth, while *Rahim* is His specific, eternal mercy reserved for the believers in the Hereafter. Starting with these names reminds the servant that the Creator is approachable through kindness, not just power.
- 2. "Lord of the Worlds" implies that Allah is the Creator, Owner, and Nurturer of everything—from the angels in the highest heavens to the smallest insects on earth. His Lordship is absolute; everything exists because He wills it to exist.
-</p>
-
-<h4>#### 3–4. The Ownership of Judgment</h4>
-
-<blockquote>
-**الرَّحْمَٰنِ الرَّحِيمِ ﴿٣﴾ مَالِكِ يَوْمِ الدِّينِ ﴿٤﴾**  
-**"The Entirely Merciful, the Especially Merciful. Sovereign of the Day of Recompense."**  
-**जो निहायत मेहरबान, बहुत रहम करने वाला है। जज़ा (बदले) के दिन का मालिक है।**
-</blockquote>
-
-<p>
-**Literary Explanation**
-After establishing His Mercy, Allah reminds us of His Justice. **"Maliki Yawm ad-Din"**—the Master of the Day of Judgment. This verse bridges the gap between our current life and our eternal destination. It teaches that the same Mercy we seek today is the authority that will judge our actions tomorrow. It keeps the heart in a state of balance: hopeful because of His Mercy, but aware because of His Justice.
-</p>
-
-<p>
-**Tafsir (based on Ibn Kathir, Noor ul Irfan)**
- 1. The "Day of Recompense" is the day when the veil of the worldly life is lifted and every soul is confronted with its own deeds. Allah being the "Owner" means there is no appeal and no authority besides His on that Day.
- 2. Acknowledging Allah as the Master of the Day of Judgment instills a sense of accountability. It prevents a person from living carelessly, knowing that every action, no matter how small, is being recorded by the Sovereign of that Day.
-</p>
-
-<h4>#### 5. The Core of Worship</h4>
-
-<blockquote>
-**إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٥﴾**  
-**"It is You we worship and You we ask for help."**  
-**हम सिर्फ तेरी ही इबादत करते हैं और सिर्फ तुझ ही से मदद मांगते हैं।**
-</blockquote>
-
-<p>
-**Literary Explanation**
-This verse is the center of the Surah. It switches from describing Allah in the third person to addressing Him directly (**"You"**). The phrasing is specific: **"Iyyaka"** (You alone). It signifies a total surrender. We declare that our devotion is for Him alone and our reliance is on Him alone. It is a vow of loyalty that frees the believer from relying on anything other than the Creator.
-</p>
-
-<p>
-**Tafsir (based on Ibn Kathir, Noor ul Irfan)**
- 1. Worship (*Ibadah*) is the goal of our existence, and Seeking Help (*Isti'anah*) is the method to achieve it. We worship Him because He is worthy of it, and we ask His help because we are too weak to worship Him without His support.
- 2. This verse cures the soul of "shirk" (associating partners with Allah). By saying "We ask help from You," we acknowledge that while we may seek assistance from humans in daily tasks, the *ultimate* source of all power, healing, and success is Allah alone.
-</p>
-
-<h4>#### 6–7. The Final Petition</h4>
-
-<blockquote>
-**اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٦﴾ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ﴿٧﴾**  
-**"Guide us to the straight path. The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray."**  
-**हमें सीधा रास्ता दिखा। उन लोगों का रास्ता जिन पर तूने इनाम किया, न उनका रास्ता जिन पर ग़ज़ब हुआ और न उनका रास्ता जो गुमराह हुए।**
-</blockquote>
-
-<p>
-**Literary Explanation**
-The prayer concludes with a request for **"As-Sirat al-Mustaqim"** (The Straight Path). It is not a request for a shortcut, but for a constant, balanced direction. We seek the company of the "Favored ones" (Prophets, Saints, and Martyrs). We also explicitly ask to be saved from two failures: **"Al-Maghdub"** (those who knew the truth but rejected it, like those who earned wrath) and **"Ad-Dallin"** (those who lost their way due to ignorance).
-</p>
-
-<p>
-**Tafsir (based on Ibn Kathir, Noor ul Irfan)**
- 1. Guidance is a continuous process; even the believers need to ask for it every day. The "Straight Path" is the path of Islam, which is the shortest distance between a human heart and its Creator.
- 2. The three groups are:
-   * The **Favored**: Those who received truth and followed it with sincerity.
-   * The **Wrath-earned**: Those who saw the truth, understood it, but stubbornly opposed it.
-   * The **Astray**: Those who lost the path because they sought it without the light of Divine revelation.
-</p>
-
-`;
-const ruku7 = `
-
-<h3 style="color:#145a42;"><b>Seerah and Context (Verse Range: 47–59 | Ruku: 06)</b></h3>
-
-<p><b>Favors and Punishments</b></p>
-
-<p>
-This Ruku acts as a detailed historical record of the survival and spiritual evolution of the Children of Israel. It moves beyond generalities to list specific, miraculous interventions that saved the nation from total extinction. Each verse is a link in a chain, showing that whenever the people reached the brink of destruction—whether by the sword of Pharaoh, the depths of the sea, or the darkness of a spiritual void—Allah intervened with a unique "escape."
-</p>
-
-<p>
-In Madinah, the Jewish tribes often cited their noble ancestry as proof of their inherent salvation. This Ruku was a direct response to that claim. It taught the Prophet ﷺ and the early Muslims that the "title" of being a chosen people is not a permanent shield; rather, it is a heavy trust. It warned the Sahaba that even after witnessing great miracles, the human heart can still harden if it is not continuously polished with gratitude and obedience.
-</p>
-
-<h4 style="color:#1abc9c;"><b>47–48. The Call to Individual Responsibility</b></h4>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<b>يَا بَنِي إِسْرَائِيلَ اذْكُرُوا نِعْمَتِيَ الَّتِي أَنْعَمْتُ عَلَيْكُمْ وَأَنِّي فَضَّلْتُكُمْ عَلَى الْعَالَمِينَ ﴿٤٧﴾ وَاتَّقُوا يَوْمًا لَّا تَجْزِي نَفْسٌ عَن نَّفْسٍ شَيْئًا... ﴿٤٨﴾</b><br><br>
-
-<b>"O Children of Israel, remember My favor which I have bestowed upon you and that I preferred you over the worlds. And fear a Day when no soul will suffice for another soul at all..."</b><br><br>
-
-<b>ऐ बनी इस्राईल! मेरी उस नेमत को याद करो जो मैंने तुम पर की और यह कि मैंने तुम्हें (उस ज़माने के) तमाम जहानों पर फ़ज़ीलत दी। और उस दिन से डरो जिस दिन कोई जान किसी दूसरी जान के काम न आएगी...</b>
-</blockquote>
-
-<p><b>Literary Explanation</b></p>
-
-<p>
-This verse is a wake-up call. It begins by acknowledging their high status—how Allah chose them to lead humanity at that time—but immediately balances it with a warning about the Day of Judgment. The transition from "Favor" to "Fear" removes any sense of complacency. It explains that on that Day, family names, tribal connections, and even the greatness of ancestors won't help. Every person will stand alone, and only their own faith and deeds will matter.
-</p>
-
-<p><b>Tafsir (based on Ibn Kathir, Noor ul Irfan)</b></p>
-
-<ul>
-<li>The "Preference" was specific to their time, as they were the only nation carrying the message of Monotheism while the rest of the world was in paganism. It highlights that the favor of Allah is a debt that must be paid through worship and sincerity, not just pride in lineage.</li>
-
-<li>The Day of Judgment is described as a place where no "compensation" or "intercession" will be accepted for those who rejected the truth. While the intercession of Prophets exists for sinful believers, it cannot be used as a "loophole" by those who intentionally turned away from the Divine Covenant.</li>
-</ul>
-
-<h4 style="color:#1abc9c;"><b>49–50. The Miracle of the Sea</b></h4>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<b>وَإِذْ نَجَّيْنَاكُم مِّنْ آلِ فِرْعَوْنَ يَسُومُونَكُمْ سُوءَ الْعَذَابِ... ﴿٤٩﴾ وَإِذْ فَرَقْنَا بِكُمُ الْبَحْرَ فَأَنجَيْنَاكُمْ وَأَغْرَقْنَا آلَ فِرْعَوْنَ وَأَنتُمْ تَنظُرُونَ ﴿٥٠﴾</b><br><br>
-
-<b>"And [recall] when We saved your forefathers from the people of Pharaoh... And [recall] when We parted the sea for you and saved you and drowned the people of Pharaoh while you were looking on."</b><br><br>
-
-<b>और (याद करो) जब हमने तुम्हें फ़िरऔन के लोगों से निजात दी जो तुम्हें बुरा अज़ाब देते थे... और जब हमने तुम्हारे लिए समंदर को फाड़ दिया और तुम्हें बचा लिया और फ़िरऔन वालों को डुबो दिया और तुम देख रहे थे।</b>
-</blockquote>
-
-<p><b>Literary Explanation</b></p>
-
-<p>
-This part vividly describes the transition from the "horrible torment" of slavery under Pharaoh to the "miraculous freedom" at the sea. It highlights that Allah didn't just save them; He let them *watch* as their powerful oppressor was defeated. The phrase "while you were looking on" indicates that the destruction of their enemy was made a public spectacle to heal their psychological wounds from generations of slavery.
-</p>
-
-<p><b>Tafsir (based on Ibn Kathir, Noor ul Irfan)</b></p>
-
-<ul>
-<li>The "horrible torment" included the slaughter of their newborn sons and the sparing of their daughters for domestic servitude. This deliverance occurred on the day of *Ashura*, which the Prophet ﷺ later commanded Muslims to fast in gratitude, linking the history of Bani Isra'il to the Ummah of Islam.</li>
-
-<li>The parting of the sea is a sign of Allah’s absolute power over nature. It serves as a reminder that when a believer is trapped between an enemy and a sea, Allah can create a path where there seems to be none, provided there is faith and trust in the Divine promise.</li>
-</ul>
-
-<h4 style="color:#1abc9c;"><b>51–54. The Betrayal and Repentance</b></h4>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<b>وَإِذْ وَاعَدْنَا مُوسَىٰ أَرْبَعِينَ لَيْلَةً ثُمَّ اتَّخَذْتُمُ الْعِجْلَ مِن بَعْدِهِ... ﴿٥١﴾ ثُمَّ عَفَوْنَا عَنكُم مِّن بَعْدِ ذَٰلِكَ... ﴿٥٢﴾</b><br><br>
-
-<b>"And [recall] when We made an appointment with Moses for forty nights. Then you took the calf [for worship] after him... Then We forgave you after that..."</b><br><br>
-
-<b>और जब हमने मूसा (अलैहि.) से चालीस रातों का वादा किया, फिर उनके पीछे तुमने बछड़े को (माबूद) बना लिया... फिर हमने उसके बाद तुम्हें माफ़ कर दिया...</b>
-</blockquote>
-
-<p><b>Literary Explanation</b></p>
-
-<p>
-Here, the Quran exposes how fragile their faith was. As soon as Musa (AS) went to the mountain to receive the Torah, they went back to worshipping a golden calf. It shows that they were still mentally "enslaved" to visible idols. Their repentance required a very difficult physical and spiritual sacrifice—a "killing" of their old, sinful selves—to prove they were ready to return to pure Monotheism.
-</p>
-
-<p><b>Tafsir (based on Ibn Kathir, Noor ul Irfan)</b></p>
-
-<ul>
-<li>The incident of the calf is a warning that spiritual instability often follows great miracles if the heart is not grounded. The command to "kill yourselves" (the guilty among them) was a severe test of their sincerity, showing that some sins are so grave that their purification requires extreme sacrifice.</li>
-
-<li>Even after such a massive sin, Allah used the word "forgave." This proves that there is no sin too great for Allah’s mercy, provided the repentance follows the Divine protocol. It highlights that the doors of mercy are never closed as long as a person is willing to admit their fault.</li>
-</ul>
-
-<h4 style="color:#1abc9c;"><b>55–56. The Thunderbolt and Rebirth</b></h4>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<b>وَإِذْ قُلْتُمْ يَا مُوسَىٰ لَن نُّؤْمِنَ لَكَ حَتَّىٰ نَرَى اللَّهَ جَهْرَةً فَأَخَذَتْكُمُ الصَّاعِقَةُ... ﴿٥٥﴾ ثُمَّ بَعَثْنَاكُم مِّن بَعْدِ مَوْتِكُمْ لَعَلَّكُمْ تَشْكُرُونَ ﴿٥٦﴾</b><br><br>
-
-<b>"And [recall] when you said, 'O Moses, we will never believe you until we see Allah outright'; so the thunderbolt took you... Then We revived you after your death that perhaps you would be grateful."</b><br><br>
-
-<b>और जब तुमने कहा, "ऐ मूसा! हम हरगिज़ तुम्हारा यक़ीन नहीं करेंगे जब तक हम अल्लाह को साफ़-साफ़ न देख लें"; तो तुम्हें बिजली ने आ पकड़ा... फिर हमने तुम्हें तुम्हारी मौत के बाद ज़िन्दा किया ताकि तुम शुक्रगुज़ार बनो।</b>
-</blockquote>
-
-<p><b>Literary Explanation</b></p>
-
-<p>
-This verse describes their ultimate stubbornness and materialist mindset. They demanded to see Allah with their physical eyes as a condition for faith. Since human eyes cannot endure the pure Majesty of Allah in this world, they were struck by a thunderbolt. But Allah, in His infinite mercy, brought them back to life—using the same word for "Resurrection"—to give them another chance to develop gratitude.
-</p>
-
-<p><b>Tafsir (based on Ibn Kathir, Noor ul Irfan)</b></p>
-
-<ul>
-<li>Demanding to "see Allah" out of stubbornness is a sign of extreme disrespect (*Be-Adabi*). This event served as a "visual proof" of the Day of Resurrection, showing that life and death are entirely within Divine command and can be reversed at any moment.</li>
-
-<li>Being brought back to life after perishing was a "second chance" at existence. It highlights that the purpose of physical life is to develop spiritual gratitude (*Shukr*). Without gratitude, a person is spiritually dead even if they are physically breathing.</li>
-</ul>
-
-<h4 style="color:#1abc9c;"><b>57–59. The Provisions and the Mockery</b></h4>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<b>وَظَلَّلْنَا عَلَيْكُمُ الْغَمَامَ وَأَنزَلْنَا عَلَيْكُمُ الْمَنَّ وَالسَّلْوَىٰ... ﴿٥٧﴾ فَبَدَّلَ الَّذِينَ ظَلَمُوا قَوْلًا غَيْرَ الَّذِي قِيلَ لَهُمْ... ﴿٥٩﴾</b><br><br>
-
-<b>"And We shaded you with clouds and sent down to you manna and quails... But those who wronged changed [those words] to a statement other than that which had been said to them..."</b><br><br>
-
-<b>और हमने तुम पर बादलों का साया किया और तुम पर 'मन्न और सलवा' उतारा... मगर उन ज़ालिमों ने उस बात को बदल दिया जो उनसे कही गई थी...</b>
-</blockquote>
-
-<p><b>Literary Explanation</b></p>
-
-<p>
-Even in the hot desert, Allah protected them with "clouds" for shade and "heavenly food" (Manna and Salwa) that required no labor. However, when told to enter a city with humility saying a word of seeking forgiveness (*Hittatun*), they mockingly changed the word. Because they turned a sacred ritual into a joke, they faced a plague as a consequence. It shows that they were more concerned with their desires than their spiritual dignity.
-</p>
-
-<p><b>Tafsir (based on Ibn Kathir, Noor ul Irfan)</b></p>
-
-<ul>
-<li>The "cloud" followed them like a canopy in the wilderness, providing a constant miracle of comfort. The "plague" sent upon them was a direct result of their mocking the Divine command, proving that Allah does not tolerate the mockery of His rituals or the twisting of His words.</li>
-
-<li>Changing the word of repentance to a word of mockery (related to food) represents a deeper disease: the habit of twisting Divine commands to fit worldly desires. It teaches the believers that the specific words of *Dhikr* and *Salah* are fixed by Allah and must be respected exactly as they were taught.</li>
-</ul>
-
-`;
-
-const seerah4 = `
-
-<p>
-Long before the first words of the heavens touched the valley of Makkah, there was a man who moved through its alleys with such a gentle, observant grace that everyone, friend and foe alike, called him <b>Al-Amin</b>, the Trustworthy.
-</p>
-
-<p>
-Imagine a scorching afternoon some five years before the revelation. The <b>Kaaba</b>, the ancient heart of the city, had been battered by fierce floods. As the tribes finished the repairs, a bitter silence fell over the courtyard. A dispute had broken out: who would have the honor of placing the sacred Black Stone back into its corner? Pride was as sharp as a drawn sword, and a bloody tribal war was only a breath away. In that moment of intense pressure, Muhammad (PBUH) walked in. With a calm that seemed to come from another world, he did not take sides. Instead, he spread a large cloth upon the ground, placed the stone in its center, and invited a leader from every single clan to take hold of the fabric. Together, they lifted the stone as one body. It was a masterpiece of unity, mending a fractured society with a single simple gesture. Even then, the Meccans insisted that only "pure" wealth—money untainted by cheating or greed—could fund the sanctuary’s repair. It was a subtle sign that even in darkness, the human heart still seeks the light, just as the Quran reminds us:
-</p>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<i>"O mankind, eat from whatever is on earth [that is] lawful and good and do not follow the footsteps of Satan..."</i><br>
-<b>(Surah Al-Baqarah, 2:168)</b>
-</blockquote>
-
-<p>
-But his character was best seen in the quiet corners of his own home. Consider the young <b>Zayd ibn Harithah (RA)</b>. Zayd (RA) had been stolen from his family as a boy, yet in the Prophet’s (PBUH) house, he found a love so profound that when his biological father finally arrived with a purse of gold to ransom him, Zayd (RA) made a choice that stunned the city. He looked at the father who shared his blood, and then at the man who had raised him, and he chose to stay. He had found a nobility in Muhammad (PBUH) that transcended DNA. To honor this, the Prophet (PBUH) publicly adopted him, proving that the truest family is built on faith and shared values:
-</p>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<i>"The believers are but brothers, so make settlement between your brothers..."</i><br>
-<b>(Surah Al-Hujurat, 49:10)</b>
-</blockquote>
-
-<p>
-As the years drifted toward his fortieth winter, the noise of the city became too much. He began to seek the mountain air of <b>Jabal an-Nur</b>, finding peace in the small, shadowy <b>Cave of Hira</b>. There, under the velvet Arabian sky, the silence was eventually shattered by the Angel Jibril (AS). The first command, <b>"Read!"</b>, was met with a humble reply: <i>"I cannot read."</i> Jibril (AS) embraced him with a divine force that felt like the weight of the heavens, until finally, the first light of the Quran broke through:
-</p>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<i>"Recite in the name of your Lord who created... Who taught by the pen—Taught man that which he knew not."</i><br>
-<b>(Surah Al-'Alaq, 96:1-5)</b>
-</blockquote>
-
-<p>
-Trembling with the weight of the vision, he fled down the mountain to the warmth of his wife, <b>Khadijah (RA)</b>, who wrapped him in a blanket and even greater certainty. She reminded him that a man of his integrity—one who helped the poor and spoke the truth—would never be abandoned. Soon, the sky spoke again, commanding him to stand up. The time for quiet reflection was over; he was to arise and warn humanity, teaching us all that true nobility is not found in wealth or tribe, but in the righteousness of one's soul:
-</p>
-
-<blockquote style="background:#f9f9f9;padding:10px;border-left:4px solid #1abc9c;">
-<i>"Indeed, the most noble of you in the sight of Allah is the most righteous of you. Indeed, Allah is Knowing and Acquainted."</i><br>
-<b>(Surah Al-Hujurat, 49:13)</b>
-</blockquote>
-
-`;
-const story1 = `
-
-<p>
-The story of Suhail ibn Amr (RA) is a remarkable journey of a man who moved from being the most stubborn voice against Islam to becoming its most steadfast defender in Makkah. It is a story that proves the Prophet (PBUH) could see a spark of goodness in a person even when everyone else saw only an enemy.
-</p>
-
-<p>
-For years, Suhail (RA) was the elite orator of the Quraysh. His words were his weapons, and he used them to mock the Prophet (PBUH) and stir up the tribes against the Muslims. During the **Battle of Badr**, he was captured as a prisoner. When **Umar (RA)** saw him, he was filled with protective anger. He approached the Prophet (PBUH) and said, *"O Messenger of Allah, let me pull out his two front teeth! That way, his tongue will hang out and he can never stand to give a speech against you again."*
-</p>
-
-<p>
-But the Prophet (PBUH) looked at Suhail (RA) with a deep, prophetic wisdom. He replied, **"No, Umar. I will not mutilate him, for then Allah would mutilate me, even though I am a Prophet. Besides, Umar, perhaps one day he will stand in a position that will make you happy."** Years later, during the **Treaty of Hudaybiyyah**, Suhail (RA) appeared again, this time as the lead negotiator for Makkah. He was incredibly difficult and proud. When the Prophet (PBUH) told Ali (RA) to write  "Muhammad, the Messenger of Allah," on the treaty, but Suhail (RA) objected again: "If we believed you were the Messenger of Allah, we wouldn't be fighting you. Write 'Muhammad, the son of Abdullah.'"
-</p>
-
-<p>
-The companions were furious at his disrespect, but the Prophet (PBUH) remained calm and agreed to the terms for the sake of peace. During these negotiations, Suhail’s own son, Abu Jandal (RA), who had converted to Islam and was being held prisoner in Makkah, escaped and reached the Muslim camp in chains, begging for help. Because of the treaty he had just signed, the Prophet (PBUH) had to make the agonizing decision to send Abu Jandal (RA) back with his father. It was a heartbreaking moment that tested the patience of the Muslims, but the Prophet (PBUH) told them that Allah would soon provide a way out.
-</p>
-
-<p>
-When the Prophet (PBUH) finally opened Makkah years later, Suhail (RA) expected to be punished for his past. Instead, the Prophet (PBUH) forgave everyone. This overwhelming mercy—being forgiven by the man he had insulted and fought for two decades—shattered Suhail’s (RA) pride. He realized that such mercy could only come from a true Messenger of God, and he embraced Islam with total sincerity.
-</p>
-
-<p>
-The prophecy made at Badr finally came true on the darkest day in early Islamic history: the day the Prophet (PBUH) passed away. While Makkah was in a state of absolute shock and many new Muslims were ready to leave the faith out of grief, Suhail ibn Amr (RA) stood up by the **Kaaba**. He used that same powerful, silver-tongued voice—the one Umar (RA) had once wanted to silence—to anchor the hearts of the people.
-</p>
-
-<p>
-He shouted, *"O people of Makkah! Do not be the last to enter Islam and the first to leave it! If Muhammad (PBUH) has died, then know that Allah is Ever-Living and does not die!"*
-</p>
-
-<p>
-When the news of this reached **Umar (RA)** in Madinah, he wept. He finally understood what the Prophet (PBUH) had seen in that prisoner all those years ago. The man who had once been the greatest enemy of Islam had become the one to save the faith in Makkah. It was exactly the "position" the Prophet (PBUH) said would make Umar (RA) happy.
-</p>
-
-
-<p>
-Suhail (RA) spent the rest of his life in deep worship and eventually died as a martyr, proving that no heart is too hard for the mercy of Allah to soften.
-</p>
-
-`;
-const story2 = `
-
-<p>
-The story of Salman al-Farsi (RA) is a profound reflection of the deep longing for the final Prophet felt by the few remaining Christian priests who clung to the original, pure teachings of Isa (AS). These righteous men lived in the quiet shadows of a changing world, their hearts aching to witness the light promised in their ancient scriptures. Though they lived lives of intense devotion, they could not manifest their greatest wish—to see the final Messenger (PBUH) with their own eyes—as they passed away before his arrival. Instead, it was Salman al-Farsi (RA) who walked the path they had prepared, ultimately living the very life those priests had only dared to dream of.
-</p>
-
-<p>
-His journey began in the land of Persia, in a village called Jayy within the province of Isfahan. Born as Ruzbeh, he was the son of a powerful village chief who was a devoted priest of the Magian faith. His father’s love for him was so intense and protective that he kept the young Salman (RA) confined to their estate, much like a prisoner, to ensure he would remain the guardian of the sacred fire. For years, Salman (RA) tended that flame, yet he felt a growing emptiness; the fire could heat his skin, but it could not warm his soul.
-</p>
-
-<p>
-One day, while sent on an errand for his father, he passed by a Christian church. The sound of voices raised in sincere prayer stopped him in his tracks. He entered and watched them, struck by the beauty of their devotion. "This religion is better than ours," he thought. When his father found out, he was terrified of losing his son to another faith and chained Salman’s (RA) legs, imprisoning him in the dark. But the heart of a seeker cannot be caged. Salman (RA) sent word to the Christians, and when a caravan from Syria arrived, he broke his chains and fled, leaving behind his noble life for the sake of the Truth.
-</p>
-
-<p>
-In Syria, he began a long and humble apprenticeship under a series of Christian scholars. However, he soon realized that many had lost their way, chasing the wealth of this world. It was only after much searching that he found the "Keepers of the Secret"—a few solitary, monotheistic monks who rejected the political and theological changes of the mainstream Church. These men followed the original path of Isa (AS), believing in the absolute Oneness of God and living lives of extreme poverty and prayer.
-</p>
-
-<p>
-Salman (RA) served these teachers with a devotion that spanned decades. Each time a teacher felt the approach of death, Salman (RA) would ask with tears in his eyes, "To whom do you leave me?" The circle of true believers was shrinking. Finally, he came to serve a final, righteous monk in Amuria. As this old man lay dying, he looked at Salman (RA) and whispered a truth that would change history. He confessed that there was no one left on the face of the earth who followed their pure path. "But," the monk said, his voice gaining strength, "the time for the final Prophet is near. He will come from the land of the Arabs, following the religion of Ibrahim (AS). He will migrate to a land of black volcanic rocks and date palms."
-</p>
-
-<p>
-The monk gave Salman (RA) three infallible signs: the Prophet (PBUH) would accept a gift but never touch charity for himself, and he would carry the **Seal of Prophethood** between his shoulder blades. Armed with this ancient promise, Salman (RA) joined a group of Arab traders to reach that land. But he was betrayed and sold into slavery, eventually ending up in **Yathrib** (Madinah). He spent years in forced labor, his back bent under the sun, yet his eyes were always searching.
-</p>
-
-<p>
-One afternoon, while Salman (RA) was high in a palm tree, he heard his master shouting about a man from Makkah who claimed to be a Prophet. Salman (RA) trembled so violently he nearly fell. He approached the Messenger (PBUH) and tested him with the care of a scholar. He offered dates as "charity," and the Prophet (PBUH) gave them to his companions but did not eat. He offered dates as a "gift," and the Prophet (PBUH) smiled and ate with them. Finally, at a funeral in Baqi, the Prophet Muhammad (PBUH) sensed Salman’s (RA) desperate longing. He gently moved his cloak, revealing the **Seal**—exactly as the last monk had described.
-</p>
-
-<p>
-Salman (RA) fell to the earth, weeping and kissing the feet of the Messenger (PBUH). He had finally arrived at the destination his Christian teachers had only seen in their dreams. He had carried their longing across continents, through chains and slavery, to the very feet of the Truth. Later, he would become the strategist of the Battle of the Trench, saving Madinah with his Persian wisdom.
-</p>
-
-<p>
-Though he began as a Persian noble and a Christian seeker, the Prophet (PBUH) gave him a status higher than any king, declaring: **"Salman is from us, the People of the Household (Ahl al-Bayt)."** He remains the bridge between the old world and the new, the man who fulfilled the prayers of the righteous few who came before him.
-</p>
-
-`;
-const story3 = `
-
-<p>
-The story of Saʿd ibn Muʿādh (RA) is not just a story; it is a heart-shaking reminder of what one person can become when they give their entire heart to Allah. It is said that when he passed away, the very Throne of the Most Merciful (Ar-Rahman) shook with the weight of his departure. Imagine the heavens themselves pausing to honor a man who walked among us.
-</p>
-
-<p>
-Before he was the hero of Islam, Saʿd (RA) was the proud leader of his tribe. When Mus'ab ibn Umayr (RA) first came to his city to teach the Quran, Saʿd (RA) was furious. He felt his family’s old traditions were being threatened. He grabbed his spear, his face red with anger, and marched to Mus'ab’s (RA) house, determined to drive this stranger out of his city.
-</p>
-
-<p>
-But as he reached the door, he didn't find a fighter. He found a man of peace. Mus'ab (RA) didn't raise a sword; he simply offered a kind smile and an invitation to sit. As Mus'ab (RA) began to recite the words of Allah, the anger in Saʿd’s (RA) chest turned into tears. The spear in his hand felt like the heaviest burden he had ever carried. In that room, the proud chieftain died, and a servant of Allah was born. He walked back to his people, not as a warrior of his tribe, but as a messenger of the Truth, and he didn't rest until every single one of his people had found the light of faith.
-</p>
-
-<p>
-His love for the Prophet (PBUH) was legendary. At the Battle of the Trench, when the enemy surrounded the city, Saʿd (RA) stood like a mountain. He was struck by an arrow that pierced his arm deeply. He spent his final days in the mosque, clutching his wound, praying not for his life, but for the safety of the Prophet (PBUH) and the victory of the believers. When he finally passed away, the silence in Madinah was heavy. The man who had been the backbone of the community was gone.
-</p>
-
-<p>
-On the day of his funeral, the Prophet (PBUH) walked to the grave in a strange way. He walked on his tiptoes, moving with extreme care, as if he were trying not to step on someone. When his companions asked him why, he whispered the secret that would make every believer weep: *"The angels have descended in such vast, uncountable numbers to honor Saʿd (RA) that there was no space for me to walk except on my toes."*
-</p>
-
-<p>
-Then, the Prophet (PBUH) told them the words that still echo through our souls: **"The Throne of the Most Merciful shook at the death of Saʿd ibn Muʿādh."**
-</p>
-
-<p>
-Think of that—the Creator of the heavens and the earth acknowledging the return of His servant. Saʿd (RA) was not a prophet; he was a man just like you and me. He had a family, he had pride, and he had a temper. But he chose to break his pride and let Allah fill his heart.
-</p>
-
-<p>
-If a man like Saʿd (RA) could turn his anger into love and his pride into service, why can't we? When you feel your faith is weak, or you feel you have made too many mistakes, remember Saʿd (RA). Remember that it is never too late to put down your spear, sit at the feet of the Truth, and let your heart be changed. You don't have to be perfect to be loved by Allah; you just have to be sincere. Saʿd (RA) left this world, but he left behind a map for us: the map of a heart that simply, truly, and completely loved its Lord.
-</p>
-
-`;
-// ===== DATA =====
-
-const rukuData = {
-
-"1": { title:"Al-Fatiha", rukus:{ "1":{content:[ruku1]} } },
-
-"2": {
-title:"Al-Baqarah",
-rukus:{
-"1":{content:[""]}, "2":{content:[""]}, "3":{content:[""]},
-"4":{content:[""]}, "5":{content:[ruku6]},
-"6":{content:[ruku7]}, "7":{content:[""]}, "8":{content:[""]}, "9":{content:[""]}, "10":{content:[""]},
-"11":{content:[""]}, "12":{content:[""]}, "13":{content:[""]}, "14":{content:[""]}, "15":{content:[""]},
-"16":{content:[""]}, "17":{content:[""]}, "18":{content:[""]}, "19":{content:[""]}, "20":{content:[""]},
-"21":{content:[""]}, "22":{content:[""]}, "23":{content:[""]}, "24":{content:[""]}, "25":{content:[""]},
-"26":{content:[""]}, "27":{content:[""]}, "28":{content:[""]}, "29":{content:[""]}, "30":{content:[""]},
-"31":{content:[""]}, "32":{content:[""]}, "33":{content:[""]}, "34":{content:[""]}, "35":{content:[""]},
-"36":{content:[""]}, "37":{content:[""]}, "38":{content:[""]}, "39":{content:[""]}, "40":{content:[""]}
-}
-},
-
-"3": {
-title:"Al-Imran",
-rukus:{
-"1":{content:[""]}, "2":{content:[""]}, "3":{content:[""]}, "4":{content:[""]}, "5":{content:[""]},
-"6":{content:[""]}, "7":{content:[""]}, "8":{content:[""]}, "9":{content:[""]}, "10":{content:[""]},
-"11":{content:[""]}, "12":{content:[""]}, "13":{content:[""]}, "14":{content:[""]}, "15":{content:[""]},
-"16":{content:[""]}, "17":{content:[""]}, "18":{content:[""]}, "19":{content:[""]}, "20":{content:[""]}
-}
+// ===== BOOKMARK =====
+let bookmarks={surah:null,seerah:null,story:null};
+
+function enableBookmark(container,type){
+let el=document.getElementById(container);
+let timer;
+
+el.onmousedown = el.ontouchstart = function(e){
+timer=setTimeout(()=>{
+let t=e.target;
+if(!t.innerText || t.innerText.length<2) return;
+
+if(bookmarks[type]){
+let old=document.getElementById(bookmarks[type].id);
+if(old) old.classList.remove("highlight");
 }
 
+let id="bm-"+Date.now();
+t.id=id;
+t.classList.add("highlight");
 
+bookmarks[type]={id:id,content:el.innerHTML};
+
+alert("Bookmarked");
+},600);
 };
 
-const seerahData = {
-"1":{
-title:"Seerah",
-chapters:{
-"1": { title:"The title of AL-Amin", content:[seerah4] }
-}
-}
-};
-
-const storyData = {
-"1": { title:"The story of Suhail (RA)", content:[story1] },
-"2": { title:"The story of Salman AL- Farsi", content:[story2] },
-    "3": { title:"The story of Sa'd Ibn Mu'adh", content:[story3] }
-};
-
-// ===== FUNCTIONS (UNCHANGED) =====
-
-function loadRukuDropdown(){
-let s=document.getElementById("surahSelect").value;
-let r=document.getElementById("rukuSelect");
-
-r.innerHTML=`<option value="">Select Ruku</option>`;
-if(!s) return;
-
-for(let key in rukuData[s].rukus){
-r.innerHTML+=`<option value="${key}">Ruku ${key}</option>`;
-}
+el.onmouseup = el.ontouchend = ()=>clearTimeout(timer);
 }
 
-function showRuku(){
-let s=document.getElementById("surahSelect").value;
-let r=document.getElementById("rukuSelect").value;
-if(!r) return;
+// ===== INTER TAB NAV =====
+function goBookmark(type){
 
-let data=rukuData[s].rukus[r].content[0];
+let data = bookmarks[type];
+if(!data){ alert("No bookmark"); return; }
 
-document.getElementById("contentArea").innerHTML=
-`<div class="content-box">
-<h2>${rukuData[s].title} - Ruku ${r}</h2>
-${data}
-</div>`;
+let tabId = type==="surah"?"surah":type==="seerah"?"seerah":"story";
 
-setTimeout(addVerseAI,100);
+document.querySelectorAll(".content").forEach(c=>c.classList.remove("show"));
+document.getElementById(tabId).classList.add("show");
+
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+let tabIndex = type==="surah"?0:type==="seerah"?1:2;
+document.querySelectorAll(".tab")[tabIndex].classList.add("active");
+
+let targetDiv = type==="surah"?"contentArea":type==="seerah"?"seerahContent":"storyContent";
+
+document.getElementById(targetDiv).innerHTML=
+`<div class="content-box">${data.content}</div>`;
+
+addVerseAI();
+addBoxAI("#"+targetDiv);
+enableBookmark(targetDiv,type);
+
+setTimeout(()=>{
+let el=document.getElementById(data.id);
+if(el){
+el.scrollIntoView({behavior:"smooth",block:"center"});
+}
+},300);
 }
 
-function showSeerah(){
-let ch=document.getElementById("chapterSelect").value;
-if(!ch) return;
-
-let chapter=seerahData["1"].chapters[ch];
-
-document.getElementById("seerahContent").innerHTML=
-`<div class="content-box">
-${chapter.content[0]}
-</div>`;
-
-setTimeout(addSeerahAI,100);
-}
-
-function showStory(){
-let ch=document.getElementById("storySelect").value;
-if(!ch) return;
-
-let story=storyData[ch];
-
-document.getElementById("storyContent").innerHTML=
-`<div class="content-box">
-<h2>${story.title}</h2>
-${story.content[0]}
-</div>`;
-
-setTimeout(addStoryAI,100);
-}
+// ===== ALL 114 SURAH =====
+const surahNames = ["Al-Fatiha","Al-Baqarah","Aal-Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu’minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-Adiyat","Al-Qari'ah","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
 
 // ===== INIT =====
-
 window.onload=function(){
 
 let s=document.getElementById("surahSelect");
-for(let key in rukuData){
-s.innerHTML+=`<option value="${key}">${key}. ${rukuData[key].title}</option>`;
-}
+surahNames.forEach((name,i)=>{
+s.innerHTML+=`<option value="${i+1}">${i+1}. ${name}</option>`;
+});
 
-let c=document.getElementById("chapterSelect");
-for(let key in seerahData["1"].chapters){
-let chapter=seerahData["1"].chapters[key];
-c.innerHTML+=`<option value="${key}">Chapter ${key} - ${chapter.title}</option>`;
-}
+let seerahSelect=document.getElementById("seerahSelect");
+Object.keys(seerahDB).forEach(k=>{
+seerahSelect.innerHTML+=`<option value="${k}">Chapter ${k} - ${seerahDB[k].title}</option>`;
+});
 
-let st=document.getElementById("storySelect");
-for(let key in storyData){
-let story=storyData[key];
-st.innerHTML+=`<option value="${key}">${story.title}</option>`;
-}
-
+let storySelect=document.getElementById("storySelect");
+Object.keys(storyDB).forEach(k=>{
+storySelect.innerHTML+=`<option value="${k}">${storyDB[k].title}</option>`;
+});
 };
 
-</script>
+// ===== LOAD =====
+function loadRuku(){
+let s=document.getElementById("surahSelect").value;
+let r=document.getElementById("rukuSelect");
 
+r.innerHTML=`<option>Select Ruku</option>`;
+
+Object.keys(contentDB).forEach(k=>{
+if(k.startsWith(s+".")){
+r.innerHTML+=`<option value="${k}">${k}</option>`;
+}
+});
+}
+
+function showRuku(){
+let r=document.getElementById("rukuSelect").value;
+document.getElementById("contentArea").innerHTML=
+`<div class="content-box">${contentDB[r].content}</div>`;
+
+addVerseAI();
+enableBookmark("contentArea","surah");
+}
+
+function showSeerah(){
+let s=document.getElementById("seerahSelect").value;
+document.getElementById("seerahContent").innerHTML=
+`<div class="content-box"><h3>${seerahDB[s].title}</h3>${seerahDB[s].content}</div>`;
+
+addBoxAI("#seerahContent");
+enableBookmark("seerahContent","seerah");
+}
+
+function showStory(){
+let s=document.getElementById("storySelect").value;
+document.getElementById("storyContent").innerHTML=
+`<div class="content-box"><h3>${storyDB[s].title}</h3>${storyDB[s].content}</div>`;
+
+addBoxAI("#storyContent");
+enableBookmark("storyContent","story");
+}
+
+</script>
 </head>
 
 <body>
 
 <header>Surah & Seerah Explorer</header>
-<p style="text-align:center; font-size:12px; color:#555; padding:10px;">
-⚠️ Tip: Click the three dots (⋮) in the top-right corner of your Chrome browser and select <b>Translate</b> to change to your desired language.
-</p>
+
+<div style="font-size:12px;text-align:center;padding:6px;background:#d0ebff;color:#084298;">
+⋮ Click three dots (⋮) in top right corner of chrome browser and click translate to change to desired language<br>
+⭐ Long pressing any word bookmarks the section
+</div>
+
+<div class="bookmark-bar">
+<div class="bookmark-label">BOOKMARK</div>
+<div class="bookmark-buttons">
+<button class="bookmark-btn btn-surah" onclick="goBookmark('surah')">Surah</button>
+<button class="bookmark-btn btn-seerah" onclick="goBookmark('seerah')">Seerah</button>
+<button class="bookmark-btn btn-story" onclick="goBookmark('story')">Story</button>
+</div>
+</div>
+
 <div class="tabs">
 <div class="tab active" onclick="openTab('surah')">Surah</div>
 <div class="tab" onclick="openTab('seerah')">Seerah</div>
 <div class="tab" onclick="openTab('story')">Story</div>
 </div>
 
-<!-- SURAH -->
 <div id="surah" class="content show">
-
-<select id="surahSelect" onchange="loadRukuDropdown()">
+<select id="surahSelect" onchange="loadRuku()">
 <option value="">Select Surah</option>
 </select>
 
-<select id="rukuSelect" onchange="showRuku()">
-<option value="">Select Ruku</option>
-</select>
+<select id="rukuSelect" onchange="showRuku()"></select>
 
-<div id="contentArea" class="content-box">
-Select Surah and Ruku
+<div id="contentArea"></div>
 </div>
 
-</div>
-
-<!-- SEERAH -->
 <div id="seerah" class="content">
-
-<select id="chapterSelect" onchange="showSeerah()">
-<option value="">Select Chapter</option>
-</select>
-
-<div id="seerahContent" class="content-box">
-Select Chapter
+<select id="seerahSelect" onchange="showSeerah()"></select>
+<div id="seerahContent"></div>
 </div>
 
-</div>
-
-<!-- STORY -->
 <div id="story" class="content">
-
-<select id="storySelect" onchange="showStory()">
-<option value="">Select Story</option>
-</select>
-
-<div id="storyContent" class="content-box">
-Select Story
-</div>
-
+<select id="storySelect" onchange="showStory()"></select>
+<div id="storyContent"></div>
 </div>
 
 </body>
